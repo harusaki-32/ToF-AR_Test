@@ -1,0 +1,87 @@
+[
+  {
+    "name": "camera2",
+    "version": "sony_xperia1_v1.2.0",
+    "fixedDepthCameraId": "1",
+    "fixedFrontColorCameraId": "1",
+    "cameraStartOrder": "0",
+    "calibrationTransformation": {
+      "useRotation": "true",
+      "useTranslation": "true",
+      "isDepthIntrinsicsFromColor": "false",
+      "useAutoCalibIntrinsics": "true"
+    },
+    "defaultHandLibrary": "TFLite",
+    "defaultHandRuntimeMode": "GPU",
+    "defaultHandRuntimeModeAfter": "GPU",
+    "fallbackHandLibrary": "TFLite",
+    "tofMgrTimeToDetectStreamUnexpectedStop": "1.5",
+    "defaultBodyRuntimeMode": "GPU",
+    "handMgrMaxStreamStartRetry": "10",
+    "modelingIsVoxelProjection": "true",
+    "modelingDefaultMaxDepthMeasurement": "5.0",
+    "defaultFaceEstimatorInputSource": "color",
+    "enableFaceNR": "true",
+    "faceNRTaps": "5",
+    "faceNRValue": "0.9",
+    "cameraSettings": [
+      {
+        "id": "0",
+        "colorid": "0",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false"
+      },
+      {
+        "id": "1",
+        "colorid": "0",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "true",
+        "depthMirrorVertical": "true",
+        "defaultDepthResolutionWidth": "240",
+        "defaultDepthResolutionHeight": "180",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "false",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "useFixedInternalParameters": "true",
+        "fixedInternalParameters": {
+          "fx": "181.5",
+          "fy": "181.5",
+          "cx": "107.5",
+          "cy": "81.0"
+        },
+        "defaultDepthResolutionIsDepthPrivate": "false",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "true",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720",
+        "depthDelay": "0",
+        "depthDelayAREngine": "0",
+        "depthDelayAREngineBody": "0",
+        "depthDelayARFoundation": "0",
+        "depthDelayARFoundationARImage": "0"
+      },
+      {
+        "id": "3",
+        "colorid": "3",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "true"
+      },
+      {
+        "id": "2",
+        "colorid": "2",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false"
+      },
+      {
+        "id": "4",
+        "colorid": "4",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false"
+      }
+    ]
+  }
+]

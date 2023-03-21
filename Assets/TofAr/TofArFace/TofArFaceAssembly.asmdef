@@ -1,0 +1,30 @@
+{
+    "name": "TofArFaceAssembly",
+    "rootNamespace": "",
+    "references": [
+        "TensorFlowLiteAssembly",
+        "TofArAssembly",
+        "TofArColorAssembly",
+        "TofArTofAssembly",
+        "MessagePackResolvers"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "TofArFace.Logic.dll",
+        "senscord_csharp.dll",
+        "MessagePack.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

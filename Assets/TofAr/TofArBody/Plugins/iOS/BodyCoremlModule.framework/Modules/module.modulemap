@@ -1,0 +1,4 @@
+framework module BodyCoremlModule {
+  header "BodyCoremlModule-Swift.h"
+  requires objc
+}

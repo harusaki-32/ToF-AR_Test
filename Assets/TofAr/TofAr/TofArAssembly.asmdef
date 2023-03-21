@@ -1,0 +1,31 @@
+{
+    "name": "TofArAssembly",
+    "rootNamespace": "",
+    "references": [
+        "GUID:10ad063f60afea24796667b6f256b484"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "senscord_csharp.dll",
+        "MessagePack.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.management",
+            "expression": "",
+            "define": "XR_SUPPORTED"
+        }
+    ],
+    "noEngineReferences": false
+}

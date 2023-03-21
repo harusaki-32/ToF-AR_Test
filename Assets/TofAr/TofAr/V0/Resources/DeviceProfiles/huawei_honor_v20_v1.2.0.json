@@ -1,0 +1,82 @@
+[
+  {
+    "name": "camera2",
+    "version": "huawei_honor_v20_v1.2.0",
+    "fixedDepthCameraId": "0",
+    "fixedColorCameraId": "0",
+    "fixedFrontColorCameraId": "1",
+    "cameraStartOrder": "1",
+    "calibrationTransformation": {
+      "useRotation": "false",
+      "useTranslation": "false",
+      "isDepthIntrinsicsFromColor": "true",
+      "useAutoCalibIntrinsics": "true"
+    },
+    "defaultHandLibrary": "TFLite",
+    "defaultHandRuntimeMode": "CPU",
+    "defaultHandRuntimeModeAfter": "CPU",
+    "fallbackHandLibrary": "TFLite",
+    "tofMgrTimeToDetectStreamUnexpectedStop": "1.5",
+    "defaultBodyRuntimeMode": "GPU",
+    "handMgrMaxStreamStartRetry": "10",
+    "modelingIsVoxelProjection": "true",
+    "modelingDefaultMaxDepthMeasurement": "5.0",
+    "defaultFaceEstimatorInputSource": "color",
+    "enableFaceNR": "true",
+    "faceNRTaps": "5",
+    "faceNRValue": "0.9",
+    "cameraSettings": [
+      {
+        "id": "0",
+        "colorid": "0",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "false",
+        "depthMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "240",
+        "defaultDepthResolutionHeight": "180",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "isDepthPrivate": "false",
+        "depthFlickerSettings": {
+          "useDepthFlickerFilter": "true",
+          "depthFlickerFilterPixelSkip": "7"
+        },
+        "colorDelay": "0",
+        "colorDelayAREngine": "0",
+        "colorDelayAREngineBody": "0",
+        "colorDelayARFoundation": "0",
+        "colorDelayARFoundationARImage": "0",
+        "depthDelay": "0",
+        "depthDelayAREngine": "0",
+        "depthDelayAREngineBody": "0",
+        "depthDelayARFoundation": "0",
+        "depthDelayARFoundationARImage": "0"
+      },
+      {
+        "id": "1",
+        "colorid": "1",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false"
+      },
+      {
+        "id": "2",
+        "colorid": "2",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720"
+      },
+      {
+        "id": "3",
+        "colorid": "3",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false"
+      }
+    ]
+  }
+]

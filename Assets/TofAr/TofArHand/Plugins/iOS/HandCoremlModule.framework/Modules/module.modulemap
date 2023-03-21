@@ -1,0 +1,4 @@
+framework module HandCoremlModule {
+  header "HandCoremlModule-Swift.h"
+  requires objc
+}

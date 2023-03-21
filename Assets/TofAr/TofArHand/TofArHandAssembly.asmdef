@@ -1,0 +1,29 @@
+{
+    "name": "TofArHandAssembly",
+    "rootNamespace": "",
+    "references": [
+        "TensorFlowLiteAssembly",
+        "MessagePackResolvers",
+        "TofArAssembly",
+        "TofArTofAssembly"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "TofArHand.Logic.dll",
+        "senscord_csharp.dll",
+        "MessagePack.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

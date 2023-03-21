@@ -1,0 +1,398 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sdk>
+    <!--  Defining the stream to use -->
+    <streams>
+        <stream key="pseudo_image_stream.0">
+            <address instanceName="pseudo_image_instance" type="image" port="0" />
+            <!-- Setting of frame management method(optional) -->
+            <!-- <client instanceName="client_instance.0"/> -->
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_stream">
+            <address instanceName="tofar_instance" type="null" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_color_stream">
+            <address instanceName="tofar_color_instance" type="image" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_tof_camera2_stream">
+            <address instanceName="tofar_tof_camera2_instance" type="depth" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_plane_camera2_stream">
+            <address instanceName="tofar_plane_camera2_instance" type="plane" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_mesh_camera2_stream">
+            <address instanceName="tofar_mesh_camera2_instance" type="mesh" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_hand_camera2_tflite_stream">
+            <address instanceName="tofar_hand_camera2_tflite_instance" type="hand" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_modeling_camera2_stream">
+            <address instanceName="tofar_modeling_camera2_instance" type="modeling" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_slam_camera2_stream">
+            <address instanceName="tofar_slam_camera2_instance" type="slam" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_body_camera2_stream">
+            <address instanceName="tofar_body_camera2_instance" type="body" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_face_camera2_stream">
+            <address instanceName="tofar_face_camera2_instance" type="face" port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="tofar_segmentation_camera2_stream">
+            <address instanceName="tofar_segmentation_camera2_instance" type="segmentation"
+                port="0" />
+            <frame buffering="off" />
+        </stream>
+        <stream key="player_color_stream">
+            <address instanceName="player_color_instance" type="image" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_tof_stream">
+            <address instanceName="player_tof_instance" type="image" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_skv_tof_stream">
+            <address instanceName="player_skv_tof_instance" type="depth" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_hand_stream">
+            <address instanceName="player_hand_instance" type="raw" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_plane_stream">
+            <address instanceName="player_plane_instance" type="raw" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_mesh_stream">
+            <address instanceName="player_mesh_instance" type="raw" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_modeling_stream">
+            <address instanceName="player_modeling_instance" type="raw" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_slam_stream">
+            <address instanceName="player_slam_instance" type="slam" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_body_stream">
+            <address instanceName="player_body_instance" type="body" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_segmentation_stream">
+            <address instanceName="player_segmentation_instance" type="segmentation" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <stream key="player_face_stream">
+            <address instanceName="player_face_instance" type="face" port="0" />
+            <frame buffering="on" num="0" />
+            <arguments>
+                <argument name="target_directory" value="" />
+                <argument name="repeat" value="true" />
+                <argument name="start_offset" value="0" />
+                <argument name="count" value="all" />
+                <argument name="speed" value="framerate" />
+            </arguments>
+        </stream>
+        <!-- Defining the default -->
+        <defaults>
+            <frame buffering="on" num="0" />
+        </defaults>
+    </streams>
+    <!-- Defining the instance to use -->
+    <instances>
+        <instance name="client_instance.0" component="component_client">
+            <arguments>
+                <argument name="connection" value="tcp" />
+                <argument name="threading" value="parallel" />
+                <argument name="address" value="0.0.0.0:8080" />
+                <argument name="port_num" value="19" />
+                <argument name="reply_timeout_msec" value="30000" />
+            </arguments>
+        </instance>
+        <!-- pseudo image instance -->
+        <instance name="tofar_instance" component="component_tofar">
+            <arguments></arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="pseudo_image_instance" component="component_pseudo_image"></instance>
+        <instance name="tofar_color_instance" component="component_tofar_color">
+            <arguments></arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_tof_camera2_instance" component="component_tofar_tof">
+            <arguments>
+                <argument name="camera2" value="1" />
+                <argument name="path_to_zip"
+                    value="/data/local/tmp/tofar/config/data_master_191025.zip" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_plane_camera2_instance" component="component_tofar_plane">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_mesh_camera2_instance" component="component_tofar_mesh">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_hand_camera2_tflite_instance" component="component_tofar_hand">
+            <arguments>
+                <argument name="camera2" value="1" />
+                <argument name="libraryFileName" value="libHandRecognizer-tflite.so" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_modeling_camera2_instance" component="component_tofar_modeling">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_slam_camera2_instance" component="component_tofar_slam">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_body_camera2_instance" component="component_tofar_body">
+            <arguments>
+                <argument name="camera2" value="1" />
+                <argument name="libraryFileName" value="libBodyRecognizer-tflite.so" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_face_camera2_instance" component="component_tofar_face">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="tofar_segmentation_camera2_instance"
+            component="component_tofar_segmentation">
+            <arguments>
+                <argument name="camera2" value="1" />
+            </arguments>
+            <dependStreamKeyList></dependStreamKeyList>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_color_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="image" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_tof_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="image" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_skv_tof_instance" component="component_skv_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="depth" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_hand_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="raw" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_mesh_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="raw" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_plane_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="raw" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_modeling_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="raw" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_slam_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="slam" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_body_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="body" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_segmentation_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="segmentation" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+        <instance name="player_face_instance" component="component_player">
+            <arguments>
+                <argument name="port_num" value="5" />
+                <argument name="port_type" value="face" />
+            </arguments>
+            <allocators>
+                <allocator key="0" />
+            </allocators>
+        </instance>
+    </instances>
+    <core>
+        <log severity="debug" />
+    </core>
+</sdk>

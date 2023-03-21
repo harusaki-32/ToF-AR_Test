@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<allocators>
+    <allocator key="0" type="heap" cacheable="off"></allocator>
+    <allocator key="1" type="heap" cacheable="off"></allocator>
+    <allocator key="2" type="allocator_sample" cacheable="off">
+        <arguments>
+            <argument name="default_malloc_size" value="128" />
+        </arguments>
+    </allocator>
+</allocators>

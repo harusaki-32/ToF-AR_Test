@@ -1,0 +1,204 @@
+﻿/*
+ * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ *
+ * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
+ * Solutions Corporation.
+ * No part of this file may be copied, modified, sold, and distributed in any
+ * form or by any means without prior explicit permission in writing from
+ * Sony Semiconductor Solutions Corporation.
+ *
+ */
+
+using System;
+using System.Runtime.InteropServices;
+using UnityEngine;
+
+namespace TofAr.V0.Segmentation.Human
+{
+    /// <summary>
+    /// 人物推定
+    /// </summary>
+    public class HumanSegmentationDetector : MonoBehaviour, ISegmentationDetector
+    {
+        /// <summary>
+        /// Segmentation結果名
+        /// </summary>
+        public static string ResultNameMask { get; } = "HumanMask";
+        /// <summary>
+        /// Segmentation結果名
+        /// </summary>
+        public static string ResultName { get; } = "Human";
+
+        [SerializeField]
+        private bool isActive = true;
+
+        /// <summary>
+        /// アクティブ状態
+        /// <para>true: アクティブである</para>
+        /// <para>fase: アクティブではない</para>
+        /// </summary>
+        public bool IsActive
+        {
+            get
+            {
+                return this.isActive;
+            }
+            set
+            {
+                this.isActive = value;
+                if (HumanDetector.IsInitialized)
+                {
+                    HumanDetector.SetupHumanDetector(this.IsActive);
+                }
+            }
+        }
+
+        [SerializeField]
+        private bool enableMaskBufferOutput = false;
+
+        /// <summary>
+        /// <para>true: Mask結果をBufferで出力する</para>
+        /// <para>false: Mask結果をTextureへのPointerで出力する</para>
+        /// </summary>
+        public bool EnableMaskBufferOutput
+        {
+            get => this.enableMaskBufferOutput;
+            set => this.enableMaskBufferOutput = value;
+        }
+
+        /// <summary>
+        /// マスク用画像
+        /// </summary>
+        public Texture2D MaskTexture { get => texMask; }
+
+        private Texture2D texMask = null;
+        private byte[] BMask { get; } = new byte[HumanDetector.Width * HumanDetector.Height];
+        private GCHandle bMaskPtr;
+        private ulong resultTimestamp = 0;
+        private bool humanUpdated = false;
+
+        void Awake()
+        {
+            this.texMask = new Texture2D(HumanDetector.Height, HumanDetector.Width, TextureFormat.R8, false);
+            this.texMask.wrapMode = TextureWrapMode.Repeat;
+            //make sure our array doesn't move in memory
+            bMaskPtr = GCHandle.Alloc(BMask, GCHandleType.Pinned);
+        }
+
+        void OnDestroy()
+        {
+            if (bMaskPtr.IsAllocated)
+            {
+                bMaskPtr.Free();
+            }
+        }
+
+        private void OnEnable()
+        {
+            TofArSegmentationManager.OnFrameArrived += this.FrameArrived;
+
+            HumanDetector.SetupHumanDetector(this.IsActive);
+            if (!HumanDetector.IsInitialized)
+            {
+                HumanDetector.Init();
+            }
+        }
+
+        private void OnDisable()
+        {
+            TofArSegmentationManager.OnFrameArrived -= this.FrameArrived;
+            HumanDetector.Dispose();
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (pause)
+            {
+                if (HumanDetector.IsInitialized)
+                {
+                    HumanDetector.Dispose();
+                }
+            }
+            else
+            {
+                if (this.enabled)
+                {
+                    HumanDetector.SetupHumanDetector(this.IsActive);
+                    if (!HumanDetector.IsInitialized)
+                    {
+                        HumanDetector.Init();
+                    }
+                }
+            }
+        }
+
+        private void FrameArrived(object sender)
+        {
+            var data = TofArSegmentationManager.Instance?.SegmentationData?.Data;
+            if (data != null)
+            {
+                foreach (var result in data.results)
+                {
+                    if (result.name == ResultNameMask)
+                    {
+                        lock (this.BMask)
+                        {
+                            switch (result.dataStructureType)
+                            {
+                                case DataStructureType.MaskBufferByte:
+                                    Buffer.BlockCopy(result.maskBufferByte, 0, BMask, 0, BMask.Length);
+                                    this.resultTimestamp = result.timestamp;
+                                    this.humanUpdated = true;
+                                    break;
+                                case DataStructureType.RawPointer:
+                                    if (TofArManager.Instance.RuntimeSettings.runMode == RunMode.Default)
+                                    {
+                                        Marshal.Copy(new IntPtr((long)result.rawPointer), this.BMask, 0, this.BMask.Length);
+                                        this.resultTimestamp = result.timestamp;
+                                        this.humanUpdated = true;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (this.humanUpdated)
+            {
+                var result = new SegmentationResult();
+                lock (this.BMask)
+                {
+                    this.texMask.LoadRawTextureData(this.BMask);
+                    this.texMask.Apply();
+
+                    //アプリケーションが複数のDetectorを使用する場合、nameでデータソースを識別可能とする
+                    result.name = ResultName;
+                    result.timestamp = this.resultTimestamp;
+
+                    result.dataStructureType = DataStructureType.RawPointer;
+                    result.rawPointer = (UInt64)bMaskPtr.AddrOfPinnedObject().ToInt64();
+                    result.maskBufferSize = this.texMask.width * this.texMask.height;
+                    result.maskBufferHeight = this.texMask.height;
+                    result.maskBufferWidth = this.texMask.width;
+
+                    if (this.enableMaskBufferOutput)
+                    {
+                        result.dataStructureType = DataStructureType.MaskBufferByte;
+                        result.maskBufferWidth = HumanDetector.Width;
+                        result.maskBufferHeight = HumanDetector.Height;
+                        result.maskBufferByte = this.BMask;
+                        result.maskBufferSize = result.maskBufferByte.Length;
+                    }
+                }
+                this.humanUpdated = false;
+                TofArSegmentationManager.Instance.SetEstimatedResult(result);
+            }
+        }
+    }
+}

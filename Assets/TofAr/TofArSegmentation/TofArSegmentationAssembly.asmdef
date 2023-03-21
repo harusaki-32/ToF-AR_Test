@@ -1,0 +1,29 @@
+{
+    "name": "TofArSegmentationAssembly",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e1c53421484f032458a3206327a35696",
+        "GUID:d90b4714ae8df74458a36c5d25205473",
+        "GUID:f4d5140d7639f024699b0619ae336095",
+        "GUID:452560900c9e86d459dc0db07f11255a",
+        "GUID:10ad063f60afea24796667b6f256b484"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "senscord_csharp.dll",
+        "MessagePack.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

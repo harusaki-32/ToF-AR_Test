@@ -1,0 +1,48 @@
+[
+  {
+    "name": "camera2",
+    "version": "samsung_galaxy_note_10+_v1.2.0",
+    "fixedFrontColorCameraId": "1",
+    "defaultHandLibrary": "TFLite",
+    "defaultHandRuntimeMode": "GPU",
+    "defaultHandRuntimeModeAfter": "GPU",
+    "fallbackHandLibrary": "TFLite",
+    "tofMgrTimeToDetectStreamUnexpectedStop": "1.5",
+    "defaultBodyRuntimeMode": "GPU",
+    "handMgrMaxStreamStartRetry": "10",
+    "modelingIsVoxelProjection": "true",
+    "modelingDefaultMaxDepthMeasurement": "5.0",
+    "defaultFaceEstimatorInputSource": "color",
+    "enableFaceNR": "true",
+    "faceNRTaps": "5",
+    "faceNRValue": "0.9",
+    "cameraSettings": [
+      {
+        "id": "1",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false"
+      },
+      {
+        "id": "3",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false"
+      },
+      {
+        "id": "4",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "false",
+        "depthMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "320",
+        "defaultDepthResolutionHeight": "240",
+        "useMaxFilter": "true",
+        "useDepthCorrection": "true",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "isDepthPrivate": "false"
+      }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+{
+    "name": "TofArMeshAssembly",
+    "rootNamespace": "",
+    "references": [
+        "TofArAssembly",
+        "TofArTofAssembly",
+        "TofArSegmentationAssembly",
+        "MessagePackResolvers"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "senscord_csharp.dll",
+        "MessagePack.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

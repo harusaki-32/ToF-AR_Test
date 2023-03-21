@@ -1,0 +1,130 @@
+[
+  {
+    "name": "camera2",
+    "version": "huawei_mate40_pro_v1.2.0",
+    "fixedDepthCameraId": "1",
+    "fixedColorCameraId": "1",
+    "fixedFrontDepthCameraId": "1",
+    "fixedFrontColorCameraId": "1",
+    "cameraStartOrder": "1",
+    "calibrationTransformation": {
+      "useRotation": "false",
+      "useTranslation": "false",
+      "isDepthIntrinsicsFromColor": "false",
+      "useAutoCalibIntrinsics": "true"
+    },
+    "defaultHandLibrary": "TFLite",
+    "defaultHandRuntimeMode": "CPU",
+    "defaultHandRuntimeModeAfter": "CPU",
+    "fallbackHandLibrary": "TFLite",
+    "tofMgrTimeToDetectStreamUnexpectedStop": "1.5",
+    "defaultBodyRuntimeMode": "GPU",
+    "handMgrMaxStreamStartRetry": "10",
+    "modelingIsVoxelProjection": "true",
+    "modelingDefaultMaxDepthMeasurement": "5.0",
+    "defaultFaceEstimatorInputSource": "color",
+    "enableFaceNR": "true",
+    "faceNRTaps": "5",
+    "faceNRValue": "0.9",
+    "cameraSettings": [
+      {
+        "id": "0",
+        "colorid": "0",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "false",
+        "depthMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "640",
+        "defaultDepthResolutionHeight": "340",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "isDepthPrivate": "false",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720",
+        "depthFlickerSettings": {
+          "useDepthFlickerFilter": "true",
+          "depthFlickerFilterPixelSkip": "7"
+        }
+      },
+      {
+        "id": "1",
+        "colorid": "1",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "true",
+        "depthMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "640",
+        "defaultDepthResolutionHeight": "480",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "isDepthPrivate": "false",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720",
+        "depthFlickerSettings": {
+          "useDepthFlickerFilter": "true",
+          "depthFlickerFilterPixelSkip": "7"
+        },
+        "colorDelay": "0",
+        "colorDelayAREngine": "0",
+        "colorDelayAREngineBody": "0",
+        "colorDelayARFoundation": "0",
+        "colorDelayARFoundationARImage": "0",
+        "depthDelay": "0",
+        "depthDelayAREngine": "0",
+        "depthDelayAREngineBody": "0",
+        "depthDelayARFoundation": "0",
+        "depthDelayARFoundationARImage": "0"
+      },
+      {
+        "id": "2",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720"
+      },
+      {
+        "id": "3",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "false",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720"
+      },
+      {
+        "id": "5",
+        "depthRotation": "0",
+        "depthMirrorHorizontal": "true",
+        "depthMirrorVertical": "true",
+        "defaultDepthResolutionWidth": "640",
+        "defaultDepthResolutionHeight": "480",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001",
+        "isDepthPrivate": "false",
+        "colorMirrorHorizontal": "true",
+        "colorMirrorVertical": "true",
+        "defaultColorResolutionWidth": "1280",
+        "defaultColorResolutionHeight": "720",
+        "depthFlickerSettings": {
+          "useDepthFlickerFilter": "true",
+          "depthFlickerFilterPixelSkip": "7"
+        }
+      }
+    ]
+  }
+]
