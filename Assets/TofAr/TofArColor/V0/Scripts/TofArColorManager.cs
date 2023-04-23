@@ -1,5 +1,5 @@
-﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+/*
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -156,25 +156,9 @@ namespace TofAr.V0.Color
 
                         if (useFrontCameraAsDefault)
                         {
-                            var defaultConfig = this.stream?.GetProperty<DefaultResolutionProperty>();
-                            if (defaultConfig != null && defaultConfig.lensFacing != (int)LensFacing.Front)
-                            {
-                                var defaultFrontConfig = GetDefaultFrontCameraConfig();
-                                if (defaultFrontConfig != null)
-                                {
-                                    var frontResolutionProperty = new ResolutionProperty()
-                                    {
-                                        cameraId = defaultFrontConfig.cameraId,
-                                        width = defaultFrontConfig.width,
-                                        height = defaultFrontConfig.height,
-                                        lensFacing = defaultFrontConfig.lensFacing
-                                    };
-
-                                    this.stream?.SetProperty(frontResolutionProperty);
-                                    this.lensFacingChanged = true;
-                                }
-                            }
+                            SetFrontCameraAsDefault();
                         }
+
 #if UNITY_EDITOR
                         }
                         catch (ApiException e)
@@ -188,6 +172,30 @@ namespace TofAr.V0.Color
                 return this.stream;
             }
         }
+
+        private void SetFrontCameraAsDefault()
+        {
+            var defaultConfig = this.stream?.GetProperty<DefaultResolutionProperty>();
+            if (defaultConfig != null && defaultConfig.lensFacing != (int)LensFacing.Front)
+            {
+                var defaultFrontConfig = GetDefaultFrontCameraConfig();
+                if (defaultFrontConfig != null)
+                {
+                    var frontResolutionProperty = new ResolutionProperty()
+                    {
+                        cameraId = defaultFrontConfig.cameraId,
+                        width = defaultFrontConfig.width,
+                        height = defaultFrontConfig.height,
+                        lensFacing = defaultFrontConfig.lensFacing,
+                        frameRate = defaultFrontConfig.frameRate
+                    };
+
+                    this.stream?.SetProperty(frontResolutionProperty);
+                    this.lensFacingChanged = true;
+                }
+            }
+        }
+
         /// <summary>
         /// trueの場合ストリーミングを行っている
         /// </summary>
@@ -217,6 +225,11 @@ namespace TofAr.V0.Color
         public bool ProcessTexture { get => processTexture; private set => processTexture = value; }
         /// <summary>
         /// Colorデータを変換したTexture2D
+        /// <para>Colorデータが下記フォーマットの場合、Unityがサポートしていないため表示可能なデータは格納されない。</para>
+        /// <list type="bullet">
+        /// <item><description>YUV420</description></item>
+        /// <item><description>BGR</description></item>
+        /// </list>
         /// </summary>
         public Texture2D ColorTexture { get; private set; }
         /// <summary>
@@ -426,6 +439,8 @@ namespace TofAr.V0.Color
         public class deviceCameraSettingsJson
         {
             public string id = null;
+            public int defaultColorResolutionWidth = 0;
+            public int defaultColorResolutionHeight = 0;
             public int colorDelay = 0;
             public int colorDelayAREngine = 0;
             public int colorDelayAREngineBody = 0;
@@ -491,6 +506,7 @@ namespace TofAr.V0.Color
             TofArManager.Instance.ColorAutoStart = this.autoStart;
 
             TofArManager.Instance.AddSubManager(this);
+            TofArManager.OnCameraApiChanged += OnCameraApiChanged;
 
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
@@ -512,6 +528,18 @@ namespace TofAr.V0.Color
             }
         }
 
+        private void OnCameraApiChanged()
+        {
+            var availableResolutions = GetProperty<AvailableResolutionsProperty>();
+
+            // set default front config if necessary
+            if (useFrontCameraAsDefault)
+            {
+                SetFrontCameraAsDefault();
+            }
+
+            OnAvailableResolutionsChanged?.Invoke(availableResolutions);
+        }
 
         private IEnumerator StartProcess()
         {
@@ -519,7 +547,15 @@ namespace TofAr.V0.Color
             var defResolution = Instance.GetProperty<DefaultResolutionProperty>();
             if (!this.lensFacingChanged)
             {
-                Instance.SetProperty(new ResolutionProperty { cameraId = defResolution.cameraId, width = defResolution.width, height = defResolution.height, lensFacing = defResolution.lensFacing });
+                Instance.SetProperty(
+                    new ResolutionProperty
+                    {
+                        cameraId = defResolution.cameraId,
+                        width = defResolution.width,
+                        height = defResolution.height,
+                        lensFacing = defResolution.lensFacing,
+                        frameRate = defResolution.frameRate
+                    });
             }
             Instance.StartStream(true);
         }
@@ -529,9 +565,9 @@ namespace TofAr.V0.Color
         /// </summary>
         public void Dispose()
         {
+            TofArManager.OnCameraApiChanged -= OnCameraApiChanged;
             this.dependedManagers?.Clear();
             this.dependedManagers = null;
-
             TofArManager.Instance?.RemoveSubManager(this);
             TofArManager.Logger.WriteLog(LogLevel.Debug, "TofArColorManager.Dispose()");
             OnStreamStarted = null;
@@ -698,10 +734,6 @@ namespace TofAr.V0.Color
                         dependedManager.RestartStreamByDependManager(this);
                         autoStoppedDependManagers.Add(dependedManager);
                     }
-                    catch (NullReferenceException e)
-                    {
-                        TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
-                    }
                     catch (SensCord.ApiException e)
                     {
                         TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
@@ -722,10 +754,6 @@ namespace TofAr.V0.Color
                     try
                     {
                         dependedManager.FinalizeRestartStreamByDependManager(this);
-                    }
-                    catch (NullReferenceException e)
-                    {
-                        TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
                     }
                     catch (SensCord.ApiException e)
                     {
@@ -1446,11 +1474,22 @@ namespace TofAr.V0.Color
         private DefaultResolutionProperty GetDefaultFrontCameraConfig()
         {
             string defaultFrontId = null;
+            int defaultWidth = 0;
+            int defaultHeight = 0;
             var devcap = TofArManager.Instance.GetProperty<DeviceCapabilityProperty>()?.TrimmedDeviceAttributesString;
             if (devcap != null)
             {
                 var devAttribs = JsonUtility.FromJson<deviceAttributesJson>(devcap);
                 defaultFrontId = devAttribs?.fixedFrontColorCameraId;
+                foreach (var setting in devAttribs?.cameraSettings)
+                {
+                    if (defaultFrontId == setting.id)
+                    {
+                        defaultWidth = setting.defaultColorResolutionWidth;
+                        defaultHeight = setting.defaultColorResolutionHeight;
+                    }
+
+                }
             }
             var defaultConfig = this.stream?.GetProperty<DefaultResolutionProperty>();
             if (defaultConfig != null)
@@ -1463,8 +1502,10 @@ namespace TofAr.V0.Color
                     {
                         if (config.lensFacing == (int)LensFacing.Front)
                         {
-                            config.width = defaultConfig.width;
-                            config.height = defaultConfig.height;
+                            if (defaultWidth == 0 || defaultHeight == 0) {
+                                config.width = defaultConfig.width;
+                                config.height = defaultConfig.height;
+                            }
                             if (firstConfig == null)
                             {
                                 firstConfig = config;
@@ -1472,8 +1513,16 @@ namespace TofAr.V0.Color
                             if (!String.IsNullOrEmpty(defaultFrontId) && config.cameraId.Equals(defaultFrontId))
                             {
                                 firstConfig = config;
-                                break;
+                                if (defaultWidth == 0 || defaultHeight == 0)
+                                {
+                                    break;
+                                }
+                                if (firstConfig.width == defaultWidth && firstConfig.height == defaultHeight)
+                                {
+                                    break;
+                                }
                             }
+
                         }
                     }
                     if (firstConfig != null)
@@ -1484,6 +1533,7 @@ namespace TofAr.V0.Color
                             cameraId = firstConfig.cameraId,
                             width = firstConfig.width,
                             height = firstConfig.height,
+                            frameRate = firstConfig.frameRate
                         };
                     }
                     return defaultConfig;

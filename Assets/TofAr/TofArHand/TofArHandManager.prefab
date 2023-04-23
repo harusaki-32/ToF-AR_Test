@@ -60,6 +60,7 @@ MonoBehaviour:
   HandLibraryLoadFailed:
     m_PersistentCalls:
       m_Calls: []
+  enableBothHandsGesture: 0
   autoStartGestureEstimation: 0
   autoRotate: 1
   transformToColorSpace: 0

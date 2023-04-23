@@ -193,6 +193,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                 { "height", 1},
                 { "cameraId", 2},
                 { "lensFacing", 3},
+                { "frameRate", 4},
             };
 
             this.____stringByteKeys = new byte[][]
@@ -201,6 +202,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("height"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("cameraId"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("lensFacing"),
+                global::MessagePack.MessagePackBinary.GetEncodedStringBytes("frameRate"),
                 
             };
         }
@@ -214,7 +216,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             }
             
             var startOffset = offset;
-            offset += global::MessagePack.MessagePackBinary.WriteFixedMapHeaderUnsafe(ref bytes, offset, 4);
+            offset += global::MessagePack.MessagePackBinary.WriteFixedMapHeaderUnsafe(ref bytes, offset, 5);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[0]);
             offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.width);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[1]);
@@ -223,6 +225,8 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.cameraId, formatterResolver);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[3]);
             offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.lensFacing);
+            offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[4]);
+            offset += MessagePackBinary.WriteSingle(ref bytes, offset, value.frameRate);
             return offset - startOffset;
         }
 
@@ -242,6 +246,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             var __height__ = default(int);
             var __cameraId__ = default(string);
             var __lensFacing__ = default(int);
+            var __frameRate__ = default(float);
 
             for (int i = 0; i < length; i++)
             {
@@ -268,6 +273,9 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                     case 3:
                         __lensFacing__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
                         break;
+                    case 4:
+                        __frameRate__ = MessagePackBinary.ReadSingle(bytes, offset, out readSize);
+                        break;
                     default:
                         readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
                         break;
@@ -284,6 +292,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             ____result.height = __height__;
             ____result.cameraId = __cameraId__;
             ____result.lensFacing = __lensFacing__;
+            ____result.frameRate = __frameRate__;
             return ____result;
         }
     }
@@ -303,6 +312,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                 { "height", 1},
                 { "cameraId", 2},
                 { "lensFacing", 3},
+                { "frameRate", 4},
             };
 
             this.____stringByteKeys = new byte[][]
@@ -311,6 +321,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("height"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("cameraId"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("lensFacing"),
+                global::MessagePack.MessagePackBinary.GetEncodedStringBytes("frameRate"),
                 
             };
         }
@@ -324,7 +335,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             }
             
             var startOffset = offset;
-            offset += global::MessagePack.MessagePackBinary.WriteFixedMapHeaderUnsafe(ref bytes, offset, 4);
+            offset += global::MessagePack.MessagePackBinary.WriteFixedMapHeaderUnsafe(ref bytes, offset, 5);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[0]);
             offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.width);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[1]);
@@ -333,6 +344,8 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.cameraId, formatterResolver);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[3]);
             offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.lensFacing);
+            offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[4]);
+            offset += MessagePackBinary.WriteSingle(ref bytes, offset, value.frameRate);
             return offset - startOffset;
         }
 
@@ -352,6 +365,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             var __height__ = default(int);
             var __cameraId__ = default(string);
             var __lensFacing__ = default(int);
+            var __frameRate__ = default(float);
 
             for (int i = 0; i < length; i++)
             {
@@ -378,6 +392,9 @@ namespace MessagePack.Formatters.TofAr.V0.Color
                     case 3:
                         __lensFacing__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
                         break;
+                    case 4:
+                        __frameRate__ = MessagePackBinary.ReadSingle(bytes, offset, out readSize);
+                        break;
                     default:
                         readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
                         break;
@@ -394,6 +411,7 @@ namespace MessagePack.Formatters.TofAr.V0.Color
             ____result.height = __height__;
             ____result.cameraId = __cameraId__;
             ____result.lensFacing = __lensFacing__;
+            ____result.frameRate = __frameRate__;
             return ____result;
         }
     }

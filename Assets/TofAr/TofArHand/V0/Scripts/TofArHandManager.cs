@@ -1,5 +1,5 @@
 /*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -356,8 +356,7 @@ namespace TofAr.V0.Hand
 
 
         /// <summary>
-        /// 手認識基本設定
-        /// <para>本プロパティの設定時、コンポーネント内部では手認識エンジンの再スタートが行われる</para>
+        /// 手が検出されていない時の認識処理間隔フレーム数
         /// </summary>
         public int IntervalFramesNotRecognized
         {
@@ -579,6 +578,42 @@ namespace TofAr.V0.Hand
                 0.5f,           //Chop,
                 0.5f, //24      //ReverseSwipe
             };
+
+        private GestureIndex[] singleHandGestures = new GestureIndex[]
+        {
+            GestureIndex.None,
+            GestureIndex.Others,
+            GestureIndex.Bloom,
+            GestureIndex.AirTap,
+            GestureIndex.SnapFinger,
+            GestureIndex.FingerThrow,
+            GestureIndex.HandThrow,
+            GestureIndex.Shoot,
+            GestureIndex.Punch,
+            GestureIndex.Milk,
+            GestureIndex.Bye,
+            GestureIndex.HandSwipe,
+            GestureIndex.ThumbTap,
+            GestureIndex.TurnKnob,
+            GestureIndex.Finish,
+            GestureIndex.Eat,
+            GestureIndex.Twinkle,
+            GestureIndex.Hobby,
+            GestureIndex.Beard,
+            GestureIndex.Nose,
+            GestureIndex.ComeOn,
+            GestureIndex.Flick,
+            GestureIndex.Darts,
+            GestureIndex.Chop,
+            GestureIndex.ReverseSwipe
+        };
+        private GestureIndex[] SingleHandGestures
+        {
+            get
+            {
+                return singleHandGestures;
+            }
+        }
 
         private bool isUnPaused = true;
         private bool streamOpenErrorOccured = false;
@@ -1124,12 +1159,10 @@ namespace TofAr.V0.Hand
                     if (config != null && config.lensFacing == (int)Tof.LensFacing.Front)
                     {
                         this.gestureEstimationFrames = gestureEstimationFrames15FPS;
-                        this.FramesPerSec = 15;
                     }
                     else
                     {
                         this.gestureEstimationFrames = gestureEstimationFrames30FPS;
-                        this.FramesPerSec = 30;
                     }
                 }
 
@@ -1321,6 +1354,9 @@ namespace TofAr.V0.Hand
             this.logic = null;
         }
 
+        private float fpsTimer;
+        private float fpsTimerInterval = 5f;
+        private float baseSecForGesture = 7.5f;
         private void Update()
         {
             if (!this.gestureInitialized)
@@ -1348,30 +1384,47 @@ namespace TofAr.V0.Hand
                 this.frameCount = 0;
             }
 
+            if (Instance.IsGestureEstimating)
+            {
+                fpsTimer += Time.deltaTime;
+                if (fpsTimer >= fpsTimerInterval)
+                {
+                    fpsTimer = 0;
+                    this.gestureEstimationFrames = Mathf.Max(1, Mathf.RoundToInt(this.FrameRate / baseSecForGesture));
+                }
+            }
+
             //UpdateCameraRotationProperty();
 
-            if (Instance != null && Instance.newDataArrived)
+            if (Instance != null)
             {
-                Instance.newDataArrived = false;
-
-                // estimate gesture
                 if (Instance.IsGestureEstimating)
                 {
-                    if (this.GestureRingBufferLeft.AdjustByAccelerationOnGestureEstimation != this.adjustByAccelerationOnGestureEstimation)
-                    {
-                        this.GestureRingBufferLeft.AdjustByAccelerationOnGestureEstimation = this.adjustByAccelerationOnGestureEstimation;
-                    }
-                    if (this.GestureRingBufferRight.AdjustByAccelerationOnGestureEstimation != this.adjustByAccelerationOnGestureEstimation)
-                    {
-                        this.GestureRingBufferRight.AdjustByAccelerationOnGestureEstimation = this.adjustByAccelerationOnGestureEstimation;
-                    }
                     Instance.timeElapsedLeft += Time.deltaTime;
                     Instance.timeElapsedRight += Time.deltaTime;
+                }
 
-                    // Lock gesture
-                    lock (lockGesture)
+                if (Instance.newDataArrived)
+                {
+                    Instance.newDataArrived = false;
+
+                    // estimate gesture
+                    if (Instance.IsGestureEstimating)
                     {
-                        Instance.EstimateGesture();
+                        if (this.GestureRingBufferLeft.AdjustByAccelerationOnGestureEstimation != this.adjustByAccelerationOnGestureEstimation)
+                        {
+                            this.GestureRingBufferLeft.AdjustByAccelerationOnGestureEstimation = this.adjustByAccelerationOnGestureEstimation;
+                        }
+                        if (this.GestureRingBufferRight.AdjustByAccelerationOnGestureEstimation != this.adjustByAccelerationOnGestureEstimation)
+                        {
+                            this.GestureRingBufferRight.AdjustByAccelerationOnGestureEstimation = this.adjustByAccelerationOnGestureEstimation;
+                        }
+
+                        // Lock gesture
+                        lock (lockGesture)
+                        {
+                            Instance.EstimateGesture();
+                        }
                     }
                 }
             }
@@ -1859,7 +1912,7 @@ namespace TofAr.V0.Hand
             GestureIndex lastGestureId = hand == GestureHand.LeftHand ? this.lastGestureIdLeft : this.lastGestureIdRight;
 
             GestureHand gestureHand = hand;
-            var nblaResult = tfEstimator.Forward(ringBuffer.Buffer, ringBuffer.TopIndex, this.FramesPerGesture, this.lastIndex, this.FramesPerSec);
+            var nblaResult = tfEstimator.Forward(ringBuffer.Buffer, ringBuffer.TopIndex, this.FramesPerGesture, this.lastIndex, this.gestureEstimationFrames);
 
             NotifyGestureDataRead(gestureHand);
 

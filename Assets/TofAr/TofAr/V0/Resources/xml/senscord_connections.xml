@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <connections>
   <!-- TCP socket -->
-  <connection key="tcp" library="tcp_connection"/>
+  <connection key="tcp" library="tcp_connection">
+    <arguments>
+      <argument name="reuse_addr" value="false"/>
+      <argument name="connect_timeout_msec" value="10000"/>
+    </arguments>
+  </connection>
 
   <!-- Unix domain socket -->
   <connection key="uds" library="uds_connection"/>

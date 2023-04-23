@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -153,7 +153,8 @@ namespace TofAr.V0
 
             firstTimeStart = DebugServerSettings.firstTimeStart;
 
-            if (ipChanged && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer))
+            if (ipChanged && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor ||
+                Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.OSXPlayer))
             {
                 if (GUI.changed)
                 {
@@ -181,6 +182,15 @@ namespace TofAr.V0
             if (newFramerate != iosFramerate.intValue)
             {
                 iosFramerate.intValue = newFramerate;
+            }
+
+            var iosCameraApi = serializedObject.FindProperty("iOSCameraApi");
+            var cameraApiEnum = (IosCameraApi)Enum.GetValues(typeof(IosCameraApi)).GetValue(iosCameraApi.enumValueIndex);
+
+            IosCameraApi newCameraApi = (IosCameraApi)EditorGUILayout.EnumPopup("Camera API", cameraApiEnum);
+            if (newCameraApi != cameraApiEnum)
+            {
+                iosCameraApi.enumValueIndex = (int)newCameraApi;
             }
 #endif
 

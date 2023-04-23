@@ -1,0 +1,57 @@
+[
+  {
+    "name": "iphone",
+    "version": "iphone_11_pro_max_v1.3.0",
+    "fixedDepthCameraId": "1",
+    "fixedColorCameraId": "0",
+    "fixedFrontDepthCameraId": "1",
+    "fixedFrontColorCameraId": "1",
+    "cameraStartOrder": "0",
+    "calibrationTransformation": {
+      "useRotation": "false",
+      "useTranslation": "false",
+      "isDepthIntrinsicsFromColor": "true",
+      "useAutoCalibIntrinsics": "true"
+    },
+    "defaultHandLibrary": "TFLite",
+    "defaultHandRuntimeMode": "GPU",
+    "defaultHandRuntimeModeAfter": "GPU",
+    "fallbackHandLibrary": "TFLite",
+    "tofMgrTimeToDetectStreamUnexpectedStop": "1.5",
+    "defaultBodyRuntimeMode": "GPU",
+    "handMgrMaxStreamStartRetry": "10",
+    "defaultFaceEstimatorInputSource": "color",
+    "enableFaceNR": "true",
+    "faceNRTaps": "5",
+    "faceNRValue": "0.9",
+    "cameraSettings": [
+      {
+        "id": "0",
+        "depthMirrorHorizontal": "false",
+        "depthMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "256",
+        "defaultDepthResolutionHeight": "144",
+        "defaultFrameRate": "60",
+        "useMaxFilter": "false",
+        "useDepthCorrection": "false",
+        "depthCorrectionGain": "1.0",
+        "depthCorrectionOffset": "0",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001"
+      },
+      {
+        "id": "1",
+        "colorMirrorHorizontal": "false",
+        "colorMirrorVertical": "false",
+        "defaultDepthResolutionWidth": "640",
+        "defaultDepthResolutionHeight": "480",
+        "defaultColorResolutionWidth": "1440",
+        "defaultColorResolutionHeight": "1080",
+        "useDepthInvalidValueConvert": "true",
+        "depthInvalidValueFrom": "0",
+        "depthInvalidValueTo": "32001"
+      }
+    ]
+  }
+]

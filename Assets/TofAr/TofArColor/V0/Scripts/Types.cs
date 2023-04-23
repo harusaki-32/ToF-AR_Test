@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -151,12 +151,18 @@ namespace TofAr.V0.Color
         public int lensFacing { get; set; }
 
         /// <summary>
+        /// フレームレート
+        /// </summary>
+        [Key("frameRate")]
+        public float frameRate { get; set; }
+
+        /// <summary>
         /// 文字列へ変換する
         /// </summary>
         /// <returns>文字列</returns>
         public override string ToString()
         {
-            return string.Format("{0} : {1}x{2} {3}", Key, width, height, (LensFacing)lensFacing);
+            return string.Format("{0} : {1}x{2} {3} ({4}FPS)", Key, width, height, (LensFacing)lensFacing, frameRate);
         }
     }
 
@@ -231,8 +237,11 @@ namespace TofAr.V0.Color
 
     /// <summary>
     /// Colorデータフォーマット変換の設定
-    /// <para>ストリーミング中にSetPropertyを行うと例外が発生する</para>
     /// </summary>
+    /// <remarks>
+    /// <para>設定はストリーミングを開始する前に行う</para>
+    /// <para>ストリーミング中にSetPropertyを行うと例外が発生する</para>
+    /// </remarks>
     [MessagePackObject]
     public class FormatConvertProperty : IBaseProperty
     {

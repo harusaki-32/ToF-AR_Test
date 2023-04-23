@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -62,7 +62,8 @@ namespace TofAr.V0.Body
         public Material JointMaterial
         {
             get => this.jointMaterial;
-            set {
+            set
+            {
                 this.jointMaterial = value;
                 this.UpdateJointMaterials();
             }
@@ -111,6 +112,51 @@ namespace TofAr.V0.Body
         {
             get => this.boneMaterial;
             set => this.boneMaterial = value;
+        }
+
+        /// <summary>
+        /// 骨格、関節位置の影表示
+        /// </summary>
+        [SerializeField]
+        protected bool castShadows = false;
+
+        /// <summary>
+        /// 骨格、関節位置の影表示
+        /// </summary>
+        public bool CastShadows
+        {
+            get => castShadows;
+            set => castShadows = value;
+        }
+
+        /// <summary>
+        /// 骨格、関節位置に対する影の影響
+        /// </summary>
+        [SerializeField]
+        protected bool receiveShadows = false;
+
+        /// <summary>
+        /// 骨格、関節位置に対する影の影響
+        /// </summary>
+        public bool ReceiveShadows
+        {
+            get => receiveShadows;
+            set => receiveShadows = value;
+        }
+
+        /// <summary>
+        /// 距離閾値(カメラに近すぎる位置に認識された点を表示させないようにする)
+        /// </summary>
+        [SerializeField]
+        protected float zThreshold = 0.1f;
+
+        /// <summary>
+        /// 距離閾値(カメラに近すぎる位置に認識された点を表示させないようにする)
+        /// </summary>
+        public float ZThreshold
+        {
+            get => zThreshold;
+            set => zThreshold = value;
         }
 
         /// <summary>
@@ -224,12 +270,16 @@ namespace TofAr.V0.Body
             var position = (anchor.rotation.GetQuaternion() * joint.anchorPose.position.GetVector3()) + anchor.position.GetVector3();
             var rotation = anchor.rotation.GetQuaternion() * joint.anchorPose.rotation.GetQuaternion();
 
-            if (joint.tracked)
+
+            if (joint.tracked && joint.anchorPose.position.GetVector3().z > ZThreshold)
+
             {
                 var localMatrix = Matrix4x4.TRS(position, rotation, Vector3.one * radius);
                 var worldMatrix = transform.localToWorldMatrix * localMatrix;
                 mat.color = jointColor;
-                Graphics.DrawMesh(jointMesh, worldMatrix, mat, gameObject.layer);
+
+                Graphics.DrawMesh(jointMesh, worldMatrix, mat, gameObject.layer,
+                    null, 0, null, castShadows, receiveShadows);
             }
         }
 
@@ -242,6 +292,12 @@ namespace TofAr.V0.Body
         /// <param name="anchor">アンカー</param>
         protected void DrawBone(HumanBodyJoint joint, HumanBodyJoint parentJoint, float radius, Pose anchor)
         {
+            if (joint.anchorPose.position.GetVector3().z <= ZThreshold ||
+                parentJoint.anchorPose.position.GetVector3().z <= ZThreshold)
+            {
+                return;
+            }
+
             var startPosition = ((joint != null) && joint.tracked) ? (anchor.rotation.GetQuaternion() * joint.anchorPose.position.GetVector3()) + anchor.position.GetVector3() : Vector3.zero;
             var endPosition = ((parentJoint != null) && parentJoint.tracked) ? (anchor.rotation.GetQuaternion() * parentJoint.anchorPose.position.GetVector3()) + anchor.position.GetVector3() : Vector3.zero;
             {
@@ -256,7 +312,10 @@ namespace TofAr.V0.Body
                     Quaternion.LookRotation(startToEnd) * Quaternion.AngleAxis(90, Vector3.right),
                     new Vector3(radius * 2.0f, length / 2, radius * 2.0f));
                 var worldMatrix = transform.localToWorldMatrix * localMatrix;
-                Graphics.DrawMesh(boneMesh, worldMatrix, boneMaterial, gameObject.layer);
+
+                Graphics.DrawMesh(boneMesh, worldMatrix, boneMaterial, gameObject.layer,
+                    null, 0, null, castShadows, receiveShadows);
+
             }
         }
     }

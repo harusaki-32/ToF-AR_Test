@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.

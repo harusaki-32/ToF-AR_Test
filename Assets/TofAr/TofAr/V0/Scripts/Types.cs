@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -559,6 +559,29 @@ namespace TofAr.V0
         }
 
         /// <summary>
+        /// 端末の重力加速度
+        /// </summary>
+        [Key("acceleration")]
+        public TofArVector3 acceleration = new TofArVector3();
+        /// <summary>
+        /// 重力加速度
+        /// </summary>
+        [IgnoreMember]
+        public Vector3 Acceleration
+        {
+            get
+            {
+                return this.acceleration.GetVector3();
+            }
+            set
+            {
+                this.acceleration.x = value.x;
+                this.acceleration.y = value.y;
+                this.acceleration.z = value.z;
+            }
+        }
+
+        /// <summary>
         /// 比較する
         /// </summary>
         /// <param name="other">比較するオブジェクト</param>
@@ -715,6 +738,25 @@ namespace TofAr.V0
     }
 
     /// <summary>
+    /// 内部セッションのAPI
+    /// </summary>
+    public enum IosCameraApi : byte
+    {
+        ArKit,
+        AvFoundation
+    }
+
+    /// <summary>
+    /// AvFoundation用深度映像のフィルターモード
+    /// </summary>
+    public enum AvFoundationDepthFiltering : byte
+    {
+        Auto,
+        Off,
+        On
+    }
+
+    /// <summary>
     /// iOSプラットフォーム依存設定
     /// </summary>
     [MessagePackObject]
@@ -725,6 +767,18 @@ namespace TofAr.V0
         /// </summary>
         [Key("sessionFramerate")]
         public int sessionFramerate = 60;
+
+        /// <summary>
+        /// 内部セッションのAPI
+        /// </summary>
+        [Key("cameraApi")]
+        public IosCameraApi cameraApi = IosCameraApi.ArKit;
+
+        /// <summary>
+        /// AvFoundation用深度映像のフィルターモード
+        /// </summary>
+        [Key("depthFiltering")]
+        public AvFoundationDepthFiltering depthFiltering = AvFoundationDepthFiltering.Auto;
     }
 
     /// <summary>
@@ -745,5 +799,25 @@ namespace TofAr.V0
         /// </summary>
         [IgnoreMember]
         public string Key { get; } = "kTofArPlatformConfigurationKey";
+    }
+
+    /// <summary>
+    /// 左右反転の設定
+    /// </summary>
+    [MessagePackObject]
+    public class MirrorSettingsProperty : IBaseProperty
+    {
+        /// <summary>
+        /// trueの場合、映像を左右反転する
+        /// </summary>
+        [Key("isMirroring")]
+        public bool isMirroring = false;
+
+        /// <summary>
+        /// *TODO+ B（MessagePack用のコンパイルで使用されてるのでpublicのままにする）
+        /// MessagePack用のキー
+        /// </summary>
+        [IgnoreMember]
+        public string Key { get; } = "kTofArMirrorSettingsKey";
     }
 }

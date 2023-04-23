@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022.2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -72,9 +72,9 @@ namespace TofAr.V0.Hand
         /// <param name="lastIndex">TODO+ C</param>
         /// <param name="framesPerSec">TODO+ C</param>
         /// <returns>TODO+ C</returns>
-        public float[] Forward(FrameData[] positions, int rB_index, int frameNum, int lastIndex, int framesPerSec = 30)
+        public float[] Forward(FrameData[] positions, int rB_index, int frameNum, int lastIndex, int gestureEstimationFrames)
         {
-            GestureFrameData frameData = new GestureFrameData(framesPerSec);
+            GestureFrameData frameData = new GestureFrameData(gestureEstimationFrames);
 
             inputData = tflite.getInputBuffer()[0];
             if (inputData.Length != frameNum * dataNum)

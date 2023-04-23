@@ -100,7 +100,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.ProcessMode Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.ProcessMode)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -113,7 +113,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.ProcessLevel Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.ProcessLevel)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -126,7 +126,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.RuntimeMode Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.RuntimeMode)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -139,7 +139,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.RecogMode Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.RecogMode)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -152,7 +152,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.RotCorrection Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.RotCorrection)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -165,7 +165,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteByte(ref bytes, offset, (Byte)value);
         }
-
+        
         public global::TofAr.V0.Hand.NoiseReductionLevel Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.NoiseReductionLevel)MessagePackBinary.ReadByte(bytes, offset, out readSize);
@@ -178,7 +178,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
         {
             return MessagePackBinary.WriteInt32(ref bytes, offset, (Int32)value);
         }
-
+        
         public global::TofAr.V0.Hand.CameraOrientation Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
         {
             return (global::TofAr.V0.Hand.CameraOrientation)MessagePackBinary.ReadInt32(bytes, offset, out readSize);
@@ -255,7 +255,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("regionThreads"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("pointThreads"),
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("noiseReductionLevel"),
-
+                
             };
         }
 
@@ -266,7 +266,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
             {
                 return global::MessagePack.MessagePackBinary.WriteNil(ref bytes, offset);
             }
-
+            
             var startOffset = offset;
             offset += global::MessagePack.MessagePackBinary.WriteMapHeader(ref bytes, offset, 18);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[0]);
@@ -410,8 +410,8 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
                         readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
                         break;
                 }
-
-            NEXT_LOOP:
+                
+                NEXT_LOOP:
                 offset += readSize;
             }
 
@@ -457,7 +457,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
             this.____stringByteKeys = new byte[][]
             {
                 global::MessagePack.MessagePackBinary.GetEncodedStringBytes("cameraOrientation"),
-
+                
             };
         }
 
@@ -468,7 +468,7 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
             {
                 return global::MessagePack.MessagePackBinary.WriteNil(ref bytes, offset);
             }
-
+            
             var startOffset = offset;
             offset += global::MessagePack.MessagePackBinary.WriteFixedMapHeaderUnsafe(ref bytes, offset, 1);
             offset += global::MessagePack.MessagePackBinary.WriteRaw(ref bytes, offset, this.____stringByteKeys[0]);
@@ -510,8 +510,8 @@ namespace MessagePack.Formatters.TofAr.V0.Hand
                         readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
                         break;
                 }
-
-            NEXT_LOOP:
+                
+                NEXT_LOOP:
                 offset += readSize;
             }
 

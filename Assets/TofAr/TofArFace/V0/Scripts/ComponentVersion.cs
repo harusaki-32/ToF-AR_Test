@@ -1,5 +1,5 @@
 /*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -18,6 +18,6 @@ namespace TofAr.V0.Face
         /// <summary>
         /// バージョン番号
         /// </summary>
-        public static readonly string version = "1.2.0";
+        public static readonly string version = "1.3.0";
     }
 }

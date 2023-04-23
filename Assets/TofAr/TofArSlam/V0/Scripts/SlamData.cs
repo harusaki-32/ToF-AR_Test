@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -32,6 +32,7 @@ namespace TofAr.V0.Slam
                 this.Data = new CameraPoseProperty();
                 this.Data.position = new TofArVector3(floatData[0], floatData[1], floatData[2]);
                 this.Data.rotation = new TofArQuaternion(floatData[3], floatData[4], floatData[5], floatData[6]);
+                this.Data.acceleration = new TofArVector3(floatData[7], floatData[8], floatData[9]);
                 this.Status = (SlamStatus)data[data.Length - 1];
             }
         }

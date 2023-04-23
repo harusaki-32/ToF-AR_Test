@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -663,6 +663,17 @@ namespace TofAr.V0.Face
         /// <param name="path">再生する録画ファイルを含むディレクトリのパス</param>
         public void StartPlayback(string path)
         {
+            if (Instance.IsPlaying)
+            {
+                TofArManager.Logger.WriteLog(LogLevel.Debug, "Already in playback mode. Needs to call StopPlayback() first.");
+                return;
+            }
+            if (Instance.IsStreamActive)
+            {
+                TofArManager.Logger.WriteLog(LogLevel.Debug, "Stream currently running. Need to stop first.");
+                return;
+            }
+
             if (TofArManager.Instance.RuntimeSettings.runMode == RunMode.Default && !Utils.DirectoryContainsNoSymlinks(path))
             {
                 TofArManager.Logger.WriteLog(LogLevel.Debug, $"path {path} contained symlink");

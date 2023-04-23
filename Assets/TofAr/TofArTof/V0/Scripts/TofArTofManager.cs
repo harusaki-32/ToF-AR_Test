@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -175,22 +175,7 @@ namespace TofAr.V0.Tof
 
                             if (useFrontCameraAsDefault)
                             {
-                                var defaultConfig = this.stream?.GetProperty<Camera2DefaultConfigurationProperty>();
-
-                                if (defaultConfig != null && defaultConfig.lensFacing != (int)LensFacing.Front)
-                                {
-                                    var defaultFrontConfig = GetDefaultFrontCameraConfig();
-                                    if (defaultFrontConfig != null)
-                                    {
-                                        var newConfig = new Camera2SetConfigurationIdProperty()
-                                        {
-                                            uid = defaultFrontConfig.uid
-                                        };
-
-                                        this.stream?.SetProperty(newConfig);
-                                        this.lensFacingChanged = true;
-                                    }
-                                }
+                                SetFrontCameraAsDefault();
                             }
                         }
                         catch (ApiException e)
@@ -207,6 +192,26 @@ namespace TofAr.V0.Tof
                 }
                 return this.stream;
 
+            }
+        }
+
+        private void SetFrontCameraAsDefault()
+        {
+            var defaultConfig = this.stream?.GetProperty<Camera2DefaultConfigurationProperty>();
+
+            if (defaultConfig != null && defaultConfig.lensFacing != (int)LensFacing.Front)
+            {
+                var defaultFrontConfig = GetDefaultFrontCameraConfig();
+                if (defaultFrontConfig != null)
+                {
+                    var newConfig = new Camera2SetConfigurationIdProperty()
+                    {
+                        uid = defaultFrontConfig.uid
+                    };
+
+                    this.stream?.SetProperty(newConfig);
+                    this.lensFacingChanged = true;
+                }
             }
         }
 
@@ -472,6 +477,14 @@ namespace TofAr.V0.Tof
             /// <summary>
             /// TODO+ C
             /// </summary>
+            public int defaultDepthResolutionWidth = 0;
+            /// <summary>
+            /// TODO+ C
+            /// </summary>
+            public int defaultDepthResolutionHeight = 0;
+            /// <summary>
+            /// TODO+ C
+            /// </summary>
             public int depthDelay = 0;
             /// <summary>
             /// TODO+ C
@@ -569,19 +582,34 @@ namespace TofAr.V0.Tof
         private void OnColorFrameArrived(object sender)
         {
             var calibProperty = GetProperty<Tof.CalibrationSettingsProperty>();
-            
-            if (calibProperty.c.fx == 0 || calibProperty.c.fy == 0 ||
-                calibProperty.c.cx == 0 || calibProperty.c.cy == 0)
+
+            if (calibProperty != null)
             {
-                return;
+                if (calibProperty.c.fx == 0 || calibProperty.c.fy == 0 ||
+                  calibProperty.c.cx == 0 || calibProperty.c.cy == 0)
+                {
+                    return;
+                }
             }
+            
+            var config = GetProperty<Tof.Camera2ConfigurationProperty>();
+            string depthCameraId = "0";
+            if (config != null)
+            {
+                depthCameraId = config.cameraId;
+            }
+
             TofArColorManager.OnFrameArrived -= OnColorFrameArrived;
             calibrationSettings.c = calibProperty.c;
             this.context.Post((s) =>
             {
+                // save to persistent path if file not available
+                SaveCalibrationToPersistentPath(calibrationSettings, defaultColorId, depthCameraId);
                 CalibrationSettingsLoaded?.Invoke(calibrationSettings);
             }, null);
         }
+
+        
 
         
         private void OnValidate()
@@ -625,7 +653,7 @@ namespace TofAr.V0.Tof
                 LoadSettingsInternal(reportFailure);
             }
 
-            if (!IsStreamActive && TofArManager.Instance.UsingIos)
+            if (!IsStreamActive && TofArColorManager.Instance.IsStreamActive && TofArManager.Instance.UsingIos)
             {
                 TofArColorManager.OnFrameArrived += OnColorFrameArrived;
             }
@@ -651,6 +679,7 @@ namespace TofAr.V0.Tof
             TofArManager.Instance.TofAutoStart = this.autoStart;
 
             TofArManager.Instance.AddSubManager(this);
+            TofArManager.OnCameraApiChanged += OnCameraApiChanged;
 
             currentTofConfig = GetProperty<Camera2ConfigurationProperty>();
 
@@ -663,6 +692,18 @@ namespace TofAr.V0.Tof
             {
                 InitTofSettings();
             }
+        }
+
+        private void OnCameraApiChanged()
+        {
+            var availableConfigs = GetProperty<CameraConfigurationsProperty>();
+
+            if (useFrontCameraAsDefault)
+            {
+                SetFrontCameraAsDefault();
+            }
+
+            OnAvailableConfigurationsChanged?.Invoke(availableConfigs);
         }
 
         private void InitTofSettings()
@@ -767,6 +808,7 @@ namespace TofAr.V0.Tof
             this.dependedManagers?.Clear();
             this.dependedManagers = null;
             TofArManager.Instance?.RemoveSubManager(this);
+            TofArManager.OnCameraApiChanged -= OnCameraApiChanged;
             this.CloseStream();
         }
 
@@ -1017,10 +1059,6 @@ namespace TofAr.V0.Tof
                         dependedManager.RestartStreamByDependManager(this);
                         autoStoppedDependManagers.Add(dependedManager);
                     }
-                    catch (NullReferenceException e)
-                    {
-                        TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
-                    }
                     catch (SensCord.ApiException e)
                     {
                         TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
@@ -1041,10 +1079,6 @@ namespace TofAr.V0.Tof
                     try
                     {
                         dependedManager.FinalizeRestartStreamByDependManager(this);
-                    }
-                    catch (NullReferenceException e)
-                    {
-                        TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
                     }
                     catch (SensCord.ApiException e)
                     {
@@ -1113,6 +1147,7 @@ namespace TofAr.V0.Tof
                     else
                     {
                         configuration = GetProperty<CameraConfigurationProperty>();
+                        pauseCurrentConfig = configuration;
                     }
                     if (configuration.isFusion)
                     {
@@ -1816,11 +1851,22 @@ namespace TofAr.V0.Tof
             if (configs != null)
             {
                 string defaultFrontId = null;
+                int defaultWidth = 0;
+                int defaultHeight = 0;
                 var devcap = TofArManager.Instance.GetProperty<DeviceCapabilityProperty>();
                 if (devcap != null && !String.IsNullOrEmpty(devcap.TrimmedDeviceAttributesString))
                 {
                     var devAttrib = JsonUtility.FromJson<deviceAttributesJson>(devcap.TrimmedDeviceAttributesString);
                     defaultFrontId = devAttrib?.fixedFrontDepthCameraId;
+                    foreach (var setting in devAttrib?.cameraSettings)
+                    {
+                        if (defaultFrontId == setting.id)
+                        {
+                            defaultWidth = setting.defaultDepthResolutionWidth;
+                            defaultHeight = setting.defaultDepthResolutionHeight;
+                        }
+                        
+                    }
                 }
 
                 CameraConfigurationProperty firstConfig = null;
@@ -1835,7 +1881,14 @@ namespace TofAr.V0.Tof
                         if (!String.IsNullOrEmpty(defaultFrontId) && config.cameraId.Equals(defaultFrontId))
                         {
                             firstConfig = config;
-                            break;
+                            if (defaultWidth == 0 || defaultHeight == 0)
+                            {
+                                break;
+                            }
+                            if (firstConfig.width == defaultWidth && firstConfig.height == defaultHeight)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -2241,7 +2294,7 @@ namespace TofAr.V0.Tof
             {
                 configurations = GetProperty<CameraConfigurationsProperty>();
             }
-            if (configurations != null)
+            if (IsStreamActive && configurations != null)
             {
                 foreach (var conf in configurations.configurations)
                 {
@@ -2301,18 +2354,38 @@ namespace TofAr.V0.Tof
                     //failed to load, fall through to fallback
                 }
 
+                if (TofArManager.Instance.UsingIos)
+                {
+                    // (for iOS only) load settings from local, if available
+                    try
+                    {
+                        return LoadSettingsFromLocal(resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, color_cameraId, reportFailure);
+                    }
+                    catch (NotSupportedException e)
+                    {
+                        TofArManager.Logger.WriteLog(LogLevel.Debug, String.Format("failed to load settings for {0} from Local", resFolder));
+                        TofArManager.Logger.WriteLog(LogLevel.Debug, "reason was " + e.Message);
+                        //failed to load, fall through to fallback
+                    }
+                }
+                else
+                {
+                    // try loading settings from resources, if available
+                    try
+                    {
+                        return LoadSettingsFromResource(resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, color_cameraId, reportFailure);
+                    }
+                    catch (NotSupportedException e)
+                    {
+                        TofArManager.Logger.WriteLog(LogLevel.Debug, String.Format("failed to load settings for {0} from Resources", resFolder));
+                        TofArManager.Logger.WriteLog(LogLevel.Debug, "reason was " + e.Message);
+                        //failed to load, fall through to fallback
+                    }
+                }
+                
 
-                // try loading settings from resources, if available
-                try
-                {
-                    return LoadSettingsFromResource(resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, color_cameraId, reportFailure);
-                }
-                catch (NotSupportedException e)
-                {
-                    TofArManager.Logger.WriteLog(LogLevel.Debug, String.Format("failed to load settings for {0} from Resources", resFolder));
-                    TofArManager.Logger.WriteLog(LogLevel.Debug, "reason was " + e.Message);
-                    //failed to load, fall through to fallback
-                }
+                
+                
 
                 //load the fallback settings
                 return LoadSettingsFallback(resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, reportFailure);
@@ -2413,8 +2486,6 @@ namespace TofAr.V0.Tof
             throw new NotSupportedException("no calibration found in autocalib");
         }
 
-
-
         //throws an exeption if it can't load
         private CalibrationSettingsProperty LoadSettingsFromResource(string resFolder, int depth_w, int depth_h, int color_w, int color_h, string depth_cameraId, string color_cameraId, bool reportFailure)
         {
@@ -2436,48 +2507,84 @@ namespace TofAr.V0.Tof
                 if (calibration == null)
                 {
                     var availableCalibs = Resources.LoadAll<TextAsset>($"DeviceProfiles/Calibrations/{deviceName}");
-                    foreach (var cal in availableCalibs)
+                    // tof is inactive, but color is active
+                    if (!IsStreamActive && TofArColorManager.Instance != null && (TofArColorManager.Instance.IsStreamActive || TofArColorManager.Instance.IsPlaying))
                     {
-                        if (cal.name.Contains($"_{depth_cameraId}_"))
+                        // Try to load any calibration that matches current color id and resolution
+                        string startString = $"c{color_cameraId}_{color_w}x{color_h}";
+                        calibration = GetResourceStartsWith(availableCalibs, startString) ?? calibration;
+                        
+                        if (calibration == null)
                         {
-                            calibration = cal;
-                            break;
+                            // Try to load any calibration that matches current color id only
+                            startString = $"c{color_cameraId}_";
+                            calibration = GetResourceStartsWith(availableCalibs, startString) ?? calibration;
                         }
+                    }
+                    else
+                    {
+                        // Try to load any calibration that matches current depth id
+                        string containsString = $"_c{depth_cameraId}_";
+                        calibration = GetResourceContains(availableCalibs, containsString) ?? calibration;
                     }
                 }
             }
 
             if (calibration != null)
             {
-                if (!ParseSettingsString(calibration.text, depth_w, depth_h, color_w, color_h, depth_cameraId))
-                {
-                    CalibrationSettingsStatus = TofArManager.Instance.UsingIos ? CalibrationSettingsStatusType.BasicCalibration : CalibrationSettingsStatusType.LoadedWithDefaultColorResolution;
-                    loadedSettings[resFolder] = new PreparedSettings { settings = CalibrationSettings, status = CalibrationSettingsStatus, isFromAutoCalib = false };
-                    if (reportFailure)
-                    {
-                        CalibrationSettingsFailed.Invoke(color_w, color_h, depth_w, depth_h);
-                    }
-                    TofArManager.Logger.WriteLog(LogLevel.Debug, string.Format("loaded default settings for {0}: {1}", resFolder, calibration.text));
-                }
-                else
-                {
-                    CalibrationSettingsStatus = TofArManager.Instance.UsingIos ? CalibrationSettingsStatusType.BasicCalibration : CalibrationSettingsStatusType.LoadedWithDefaultColorResolution;
-                    loadedSettings[resFolder] = new PreparedSettings { settings = CalibrationSettings, status = CalibrationSettingsStatus, isFromAutoCalib = false };
-                    TofArManager.Logger.WriteLog(LogLevel.Debug, string.Format("loaded settings for {0}: {1}", resFolder, calibration.text));
-                }
-
-                SetDeviceParameters(false);
-
-                calibrationSettings.isCalibrated = false;
-                calibrationSettings = SetupConfigProperty(calibrationSettings);
-
-                if (CalibrationSettingsLoaded != null)
-                {
-                    CalibrationSettingsLoaded.Invoke(CalibrationSettings);
-                }
-                return CalibrationSettings;
+                return ParseCalibrationSettings(calibration.text, resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, reportFailure);
             }
             throw new NotSupportedException("no calibration found in resources");
+        }
+
+        //throws an exeption if it can't load
+        private CalibrationSettingsProperty LoadSettingsFromLocal(string resFolder, int depth_w, int depth_h, int color_w, int color_h, string depth_cameraId, string color_cameraId, bool reportFailure)
+        {
+            string directory = $"{Application.persistentDataPath}{System.IO.Path.DirectorySeparatorChar}recordings{System.IO.Path.DirectorySeparatorChar}Calibrations";
+            string path = $"{directory}{System.IO.Path.DirectorySeparatorChar}{resFolder}.txt";
+
+            TofArManager.Logger.WriteLog(LogLevel.Debug, $"Loading calibration from {path}");
+
+            if (!System.IO.File.Exists(path))
+            {
+                if (System.IO.Directory.Exists(directory))
+                {
+                    var availableCalibFiles = System.IO.Directory.GetFiles(directory);
+                    // tof is inactive, but color is active
+                    if (!IsStreamActive && TofArColorManager.Instance != null && (TofArColorManager.Instance.IsStreamActive || TofArColorManager.Instance.IsPlaying))
+                    {
+                        // Try to load any calibration that matches current color id and resolution
+                        string startString = $"c{color_cameraId}_{color_w}x{color_h}";
+                        path = GetPathStartsWith(availableCalibFiles, startString) ?? path;
+                        
+                        if (!System.IO.File.Exists(path))
+                        {
+                            // Try to load any calibration that matches current color id only
+                            startString = $"c{color_cameraId}_";
+                            path = GetPathStartsWith(availableCalibFiles, startString) ?? path;
+                        }
+                    }
+                    else
+                    {
+                        // Try to load any calibration that matches current depth id only
+                        string containString = $"_c{depth_cameraId}_";
+                        path = GetPathContains(availableCalibFiles, containString) ?? path;
+                    }
+                }
+            }
+
+            if (System.IO.File.Exists(path))
+            {
+                string calibration = System.IO.File.ReadAllText(path);
+
+                if (calibration != null)
+                {
+                    return ParseCalibrationSettings(calibration, resFolder, depth_w, depth_h, color_w, color_h, depth_cameraId, reportFailure);
+                }
+            }
+
+            
+            throw new NotSupportedException("no calibration found in local");
         }
 
 
@@ -2500,7 +2607,102 @@ namespace TofAr.V0.Tof
             return CalibrationSettings;
         }
 
+        private CalibrationSettingsProperty ParseCalibrationSettings(string calibration, string resFolder, int depth_w, int depth_h, int color_w, int color_h, string depth_cameraId, bool reportFailure)
+        {
+            
+            if (!ParseSettingsString(calibration, depth_w, depth_h, color_w, color_h, depth_cameraId))
+            {
+                CalibrationSettingsStatus = TofArManager.Instance.UsingIos ? CalibrationSettingsStatusType.BasicCalibration : CalibrationSettingsStatusType.LoadedWithDefaultColorResolution;
+                loadedSettings[resFolder] = new PreparedSettings { settings = CalibrationSettings, status = CalibrationSettingsStatus, isFromAutoCalib = false };
+                if (reportFailure)
+                {
+                    CalibrationSettingsFailed.Invoke(color_w, color_h, depth_w, depth_h);
+                }
+                TofArManager.Logger.WriteLog(LogLevel.Debug, string.Format("loaded default settings for {0}: {1}", resFolder, calibration));
+            }
+            else
+            {
+                CalibrationSettingsStatus = TofArManager.Instance.UsingIos ? CalibrationSettingsStatusType.BasicCalibration : CalibrationSettingsStatusType.LoadedWithDefaultColorResolution;
+                loadedSettings[resFolder] = new PreparedSettings { settings = CalibrationSettings, status = CalibrationSettingsStatus, isFromAutoCalib = false };
+                TofArManager.Logger.WriteLog(LogLevel.Debug, string.Format("loaded settings for {0}: {1}", resFolder, calibration));
+            }
 
+            SetDeviceParameters(false);
+
+            calibrationSettings.isCalibrated = false;
+            try
+            {
+                calibrationSettings = SetupConfigProperty(calibrationSettings);
+            }
+            catch (ApiException exception)
+            {
+                TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(exception));
+                if (reportFailure)
+                {
+                    CalibrationSettingsFailed.Invoke(color_w, color_h, depth_w, depth_h);
+                }
+            }
+
+            if (CalibrationSettingsLoaded != null)
+            {
+                CalibrationSettingsLoaded.Invoke(CalibrationSettings);
+            }
+            return CalibrationSettings;
+        }
+
+        private string GetPathStartsWith(string[] paths, string startString)
+        {
+            foreach (var cal in paths)
+            {
+                string fileRelative = System.IO.Path.GetFileName(cal);
+                if (fileRelative.StartsWith(startString))
+                {
+                    return cal;
+                }
+            }
+
+            return null;
+        }
+
+        private string GetPathContains(string[] paths, string containString)
+        {
+            foreach (var cal in paths)
+            {
+                string fileRelative = System.IO.Path.GetFileName(cal);
+                if (fileRelative.Contains(containString))
+                {
+                    return cal;
+                }
+            }
+
+            return null;
+        }
+
+        private TextAsset GetResourceStartsWith(TextAsset[] paths, string startString)
+        {
+            foreach (var cal in paths)
+            {
+                if (cal.name.StartsWith(startString))
+                {
+                    return cal;
+                }
+            }
+
+            return null;
+        }
+
+        private TextAsset GetResourceContains(TextAsset[] paths, string containString)
+        {
+            foreach (var cal in paths)
+            {
+                if (cal.name.Contains(containString))
+                {
+                    return cal;
+                }
+            }
+
+            return null;
+        }
 
         void SetDeviceParameters(bool forceWrite)
         {
@@ -2662,6 +2864,50 @@ namespace TofAr.V0.Tof
             calibrationSettings = config;
             return colorwidth == targetColorWidth && colorheight == targetColorHeight;
         }
+
+        /// <summary>
+        /// Saves calibration files to persistent path so that they can be loaded at a later time when parameters haven't been obtained by the stream yet
+        /// </summary>
+        /// <param name="calibrationSettings">Calibration settings</param>
+        /// <param name="color_cameraId">Camera ID for color</param>
+        /// <param name="depth_cameraId">Camera ID for depth</param>
+        private void SaveCalibrationToPersistentPath(CalibrationSettingsProperty calibrationSettings, string color_cameraId, string depth_cameraId)
+        {
+            string resFolder = string.Format("c{4}_{3}x{2}_c{5}_{1}x{0}", calibrationSettings.depthHeight, calibrationSettings.depthWidth, calibrationSettings.colorHeight, calibrationSettings.colorWidth, color_cameraId, depth_cameraId);
+            string pathRecordings = $"{Application.persistentDataPath}{System.IO.Path.DirectorySeparatorChar}recordings";
+            string pathCalibrations = $"{pathRecordings}{System.IO.Path.DirectorySeparatorChar}Calibrations";
+            string pathCalibrationFile = $"{pathCalibrations}{System.IO.Path.DirectorySeparatorChar}{resFolder}.txt";
+
+            if (!System.IO.File.Exists(pathCalibrationFile))
+            {
+                if (!System.IO.Directory.Exists(pathCalibrations))
+                {
+                    System.IO.Directory.CreateDirectory(pathCalibrations);
+                }
+
+                // Make to string
+                string content = $"{calibrationSettings.c.fx},{calibrationSettings.c.fy}," +
+                    $"{calibrationSettings.c.cx},{calibrationSettings.c.cy}," +
+                    $"{calibrationSettings.d.fx},{calibrationSettings.d.fy}," +
+                    $"{calibrationSettings.d.cx},{calibrationSettings.d.cy}," +
+                    $"{calibrationSettings.R.a},{calibrationSettings.R.b},{calibrationSettings.R.c}," +
+                    $"{calibrationSettings.R.d},{calibrationSettings.R.e},{calibrationSettings.R.f}," +
+                    $"{calibrationSettings.R.g},{calibrationSettings.R.h},{calibrationSettings.R.i}," +
+                    $"{calibrationSettings.T.x},{calibrationSettings.T.y},{calibrationSettings.T.z}," +
+                    $"{calibrationSettings.colorWidth},{calibrationSettings.colorHeight}";
+
+                try
+                {
+                    // Save to file
+                    System.IO.File.WriteAllText(pathCalibrationFile, content);
+                }
+                catch (System.IO.IOException e)
+                {
+                    TofArManager.Logger.WriteLog(LogLevel.Debug, $"Failed to write to file due to {e.Message}");
+                }
+            }
+        }
+
 
         #endregion
 

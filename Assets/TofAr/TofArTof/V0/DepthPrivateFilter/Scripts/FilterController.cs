@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -158,12 +158,12 @@ namespace TofAr.V0.Tof.DepthPrivateFilter
             {
                 bool reapplySettings = false;
 
-                if (TofArTofManager.Instance.Stream == null && !streamIsClosed)
+                if (TofArTofManager.Instance?.Stream == null && !streamIsClosed)
                 {
                     streamIsClosed = true;
                 }
 
-                if (streamIsClosed && TofArTofManager.Instance.Stream != null)
+                if (streamIsClosed && TofArTofManager.Instance?.Stream != null)
                 {
                     streamIsClosed = false;
                     reapplySettings = true;

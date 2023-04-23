@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -212,12 +212,20 @@ namespace TofAr.V0
                             }
                             sw.Stop();
 
-                            this.stream?.SetProperty(new PlatformConfigurationProperty()
+
+                            var configs = this.GetProperty<PlatformConfigurationProperty>();
+                            configs.platformConfigurationIos.sessionFramerate = iOSSessionFramerate;
+                            configs.platformConfigurationIos.cameraApi = iOSCameraApi;
+                            this.stream?.SetProperty(configs);
+
+                            this.stream?.SetProperty(new MirrorSettingsProperty()
                             {
-                                platformConfigurationIos = new PlatformConfigurationIos()
-                                {
-                                    sessionFramerate = iOSSessionFramerate
-                                }
+                                isMirroring = this.isMirroring
+                            });
+
+                            this.stream?.SetProperty(new MirrorSettingsProperty()
+                            {
+                                isMirroring = this.isMirroring
                             });
                         }
                         else
@@ -233,7 +241,9 @@ namespace TofAr.V0
                     this.streamOpenErrorOccured = true;
                     this.connectionExists = false;
                     sw.Stop();
-                    TofArManager.Logger.WriteLog(LogLevel.Debug, $"Timeout after {sw.ElapsedMilliseconds}ms");
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
+                    TofArManager.Logger.WriteLog(LogLevel.Debug, $"Timeout after {sw.ElapsedMilliseconds}ms / serverConnectionTimeout {this.serverConnectionTimeout}ms");
+#endif
                 }
                 return this.stream;
             }
@@ -322,6 +332,7 @@ namespace TofAr.V0
 
         /// <summary>
         /// 画面方向変更通知
+        /// <para>※ ToF AR Server を使用している場合、ToF AR Server が動作している端末の情報になります</para>
         /// </summary>
         public static event OnScreenRotationChangedEvent OnScreenOrientationUpdated;
 
@@ -343,6 +354,7 @@ namespace TofAr.V0
         public delegate void OnDeviceRotationChangedEvent(DeviceOrientation previousDeviceOrientation, DeviceOrientation newDeviceOrientation);
         /// <summary>
         /// デバイス回転変更通知
+        /// <para>※ ToF AR Server を使用している場合、ToF AR Server が動作している端末の情報になります</para>
         /// </summary>
         public static event OnDeviceRotationChangedEvent OnDeviceOrientationUpdated;
         /// <summary>
@@ -375,6 +387,9 @@ namespace TofAr.V0
         /// アプリケーション復帰開始時
         /// </summary>
         public static event ApplicationResumingEventHandler OnApplicationResuming;
+
+        internal delegate void CameraApiChangedEventHandler();
+        internal static event CameraApiChangedEventHandler OnCameraApiChanged;
 
         private void OnValidate()
         {
@@ -568,6 +583,20 @@ namespace TofAr.V0
             {
                 this.Stream?.SetProperty<T>(value);
             }
+
+            if (value is PlatformConfigurationProperty)
+            {
+                var configProp = value as PlatformConfigurationProperty;
+
+                if (usingIos)
+                {
+                    if (this.iOSCameraApi != configProp.platformConfigurationIos.cameraApi)
+                    {
+                        this.iOSCameraApi = configProp.platformConfigurationIos.cameraApi;
+                        OnCameraApiChanged?.Invoke();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -686,6 +715,11 @@ namespace TofAr.V0
             public string debugServerPort = "8080";
 
             /// <summary>
+            /// サーバー接続タイムアウト(ミリ秒)
+            /// </summary>
+            public string serverConnectionTimeout = "10000";
+
+            /// <summary>
             /// adbへのフルパス
             /// </summary>
             public string fullPathToAdb = string.Empty;
@@ -709,6 +743,10 @@ namespace TofAr.V0
         [SerializeField]
         [HideInInspector]
         private int iOSSessionFramerate = 60;
+
+        [SerializeField]
+        [HideInInspector]
+        private IosCameraApi iOSCameraApi = IosCameraApi.ArKit;
 
         /// <summary>
         /// *TODO+ B　内部処理用
@@ -739,8 +777,9 @@ namespace TofAr.V0
             this.enableNetworkDebugging = this.ServerConnectionSettingsForStandalone.enableNetworkDebugging;
             this.debugServerIpAddress = this.enableNetworkDebugging ? this.ServerConnectionSettingsForStandalone.debugServerIpAddress : "127.0.0.1";
             this.debugServerPort = this.ServerConnectionSettingsForStandalone.debugServerPort;
+            int.TryParse(this.ServerConnectionSettingsForStandalone.serverConnectionTimeout, out this.serverConnectionTimeout);
 
-            TofArManager.Logger.WriteLog(LogLevel.Debug, $"serverConnectionSettingsFilePath:{serverConnectionSettingsFilePath} enableNetworkDebugging:{this.enableNetworkDebugging} debugServerIpAddress:{this.debugServerIpAddress} debugServerPort:{this.debugServerPort}");
+            TofArManager.Logger.WriteLog(LogLevel.Debug, $"serverConnectionSettingsFilePath:{serverConnectionSettingsFilePath} enableNetworkDebugging:{this.enableNetworkDebugging} debugServerIpAddress:{this.debugServerIpAddress} debugServerPort:{this.debugServerPort} serverConnectionTimeout:{this.serverConnectionTimeout}");
 
             if (!this.enableNetworkDebugging)
             {
@@ -750,6 +789,7 @@ namespace TofAr.V0
 
             // config
             var configDirectoryPath = Application.temporaryCachePath + "/TofAr";
+            TofArManager.Logger.WriteLog(LogLevel.Debug, $"configDirectoryPath:{configDirectoryPath}");
             if (!Directory.Exists(configDirectoryPath))
             {
                 Directory.CreateDirectory(configDirectoryPath);
@@ -891,27 +931,34 @@ namespace TofAr.V0
                 try
                 {
                     if (((Application.platform == RuntimePlatform.WindowsEditor)
-                        || (Application.platform == RuntimePlatform.OSXEditor))
-                        && (t.name == "senscord"))
+                        || (Application.platform == RuntimePlatform.OSXEditor)))
                     {
 #if UNITY_EDITOR
-                        // modify to debbuging on Unity Editor
-                        var xmlPath = AssetDatabase.GetAssetPath(t);
-                        if (xmlPath != null)
+                        if (t.name.StartsWith("senscord"))
                         {
-                            var doc = XDocument.Load(xmlPath);
-                            if (doc != null)
+                            // modify to debbuging on Unity Editor
+                            var xmlPath = AssetDatabase.GetAssetPath(t);
+                            if (xmlPath != null)
                             {
-                                var root = doc.Root;
-                                if (root != null)
+                                var doc = XDocument.Load(xmlPath);
+                                if (doc != null)
                                 {
-                                    SetServerAddress(root);
-
-                                    SetClientInstance(root);
+                                    var root = doc.Root;
+                                    if (root != null)
+                                    {
+                                        if (t.name == "senscord")
+                                        {
+                                            this.SetServerAddress(root);
+                                            this.SetClientInstance(root);
+                                        }
+                                        else if (t.name == "senscord_connections")
+                                        {
+                                            this.SetConnectionSettings(root);
+                                        }
+                                    }
                                 }
-
+                                doc.Save(filePath);
                             }
-                            doc.Save(filePath);
                         }
 #endif
                     }
@@ -921,19 +968,24 @@ namespace TofAr.V0
                         {
                             File.WriteAllText(filePath, t.text, Encoding.UTF8);
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
-                            var doc = XDocument.Load(filePath);
-                            if (doc != null)
+                            if (t.name.StartsWith("senscord"))
                             {
-                                var root = doc.Root;
-                                if (root != null)
+                                var doc = XDocument.Load(filePath);
+                                if (doc != null)
                                 {
-                                    SetServerAddress(root);
-
-                                    SetClientInstance(root);
+                                    var root = doc.Root;
+                                    if (t.name == "senscord")
+                                    {
+                                        this.SetServerAddress(root);
+                                        this.SetClientInstance(root);
+                                    }
+                                    else if (t.name == "senscord_connections")
+                                    {
+                                        this.SetConnectionSettings(root);
+                                    }
                                 }
-
+                                doc.Save(filePath);
                             }
-                            doc.Save(filePath);
 #endif
                         }
                         catch (IOException e)
@@ -1011,6 +1063,26 @@ namespace TofAr.V0
                 }
             }
         }
+
+        private void SetConnectionSettings(XElement root)
+        {
+            var connections = root.Elements("connections");
+            {
+                var connection = root.Elements("connection").Where(a => a.Attribute("library").Value == "tcp_connection").FirstOrDefault();
+                if (connection != null)
+                {
+                    var argumentList = connection.Elements("arguments")?.SelectMany(e => e.Elements("argument"));
+                    if (argumentList != null)
+                    {
+                        var connectTimeoutMsec = argumentList.Where(a => a.Attribute("name").Value == "connect_timeout_msec")?.FirstOrDefault();
+                        if (connectTimeoutMsec != null)
+                        {
+                            connectTimeoutMsec.SetAttributeValue("value", serverConnectionTimeout.ToString());
+                        }
+                    }
+                }
+            }
+        }
 #endif
 
         private void CleaunpCacheFolder()
@@ -1082,6 +1154,7 @@ namespace TofAr.V0
 
         /// <summary>
         /// iOS端末チェック
+        /// <para>※ ToF AR Server を使用している場合、ToF AR Server が動作している端末の情報になります</para>
         /// </summary>
         public bool UsingIos
         {
@@ -1090,7 +1163,7 @@ namespace TofAr.V0
                 if (!checkedForIos)
                 {
                     checkedForIos = true;
-                    
+
                     if (this.RuntimeSettings.runMode == RunMode.MultiNode)
                     {
                         var deviceCapability = GetProperty<DeviceCapabilityProperty>();
@@ -1160,6 +1233,28 @@ namespace TofAr.V0
         /// TofArManagerが停止になったかどうか
         /// </summary>
         internal bool WasPaused { get; private set; } = false;
+
+        [SerializeField]
+        private bool isMirroring = false;
+
+        /// <summary>
+        /// trueの場合、映像を左右反転する
+        /// </summary>
+        public bool IsMirroring
+        {
+            get
+            {
+                return isMirroring;
+            }
+            set
+            {
+                isMirroring = value;
+                SetProperty(new MirrorSettingsProperty()
+                {
+                    isMirroring = this.isMirroring
+                });
+            }
+        }
 
         private DeviceOrientationsProperty currentOrientationProperty = new DeviceOrientationsProperty();
 
@@ -1419,10 +1514,14 @@ namespace TofAr.V0
         {
             if (this.cameraPoseTracker != null)
             {
-                if ((this.cameraPoseCache.Position != this.cameraPoseTracker.transform.position) || (this.cameraPoseCache.Rotation != this.cameraPoseTracker.transform.rotation))
+                if ((this.cameraPoseCache.Position != this.cameraPoseTracker.transform.position) || 
+                    (this.cameraPoseCache.Rotation != this.cameraPoseTracker.transform.rotation) ||
+                    (this.cameraPoseCache.Acceleration != Input.acceleration))
                 {
                     this.cameraPoseCache.Position = this.cameraPoseTracker.transform.position;
                     this.cameraPoseCache.Rotation = this.cameraPoseTracker.transform.rotation;
+                    
+                    this.cameraPoseCache.Acceleration = Input.acceleration;
                     this.ForceUpdateCameraPose();
                 }
             }

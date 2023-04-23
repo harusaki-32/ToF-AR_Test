@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018,2019,2020,2021,2022 Sony Semiconductor Solutions Corporation.
+ * Copyright 2018,2019,2020,2021,2022,2023 Sony Semiconductor Solutions Corporation.
  *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Sony Semiconductor
  * Solutions Corporation.
@@ -87,6 +87,10 @@ namespace TofAr.V0.Body
                                 SetDefaultRuntimeMode();
                             }
                             RuntimeMode = runtimeMode;
+
+                            var recognizeConfigProperty = this.stream.GetProperty<SV2.RecognizeConfigProperty>();
+                            recognizeConfigProperty.noiseReductionLevel = noiseReductionLevel;
+                            this.SetProperty<SV2.RecognizeConfigProperty>(recognizeConfigProperty);
 
                             TofArTofManager.Instance?.AddManagerDependency(this);
 #if UNITY_EDITOR
@@ -237,6 +241,25 @@ namespace TofAr.V0.Body
                 {
                     TofArManager.Logger.WriteLog(LogLevel.Debug, Utils.FormatException(e));
                 }
+            }
+        }
+
+        
+        [SerializeField]
+        private SV2.NoiseReductionLevel noiseReductionLevel = SV2.NoiseReductionLevel.Low;
+        
+        /// <summary>
+        /// スムージングモード
+        /// </summary>
+        public SV2.NoiseReductionLevel NoiseReductor
+        {
+            get
+            {
+                return this.noiseReductionLevel;
+            }
+            set
+            {
+                this.noiseReductionLevel = value;
             }
         }
 
