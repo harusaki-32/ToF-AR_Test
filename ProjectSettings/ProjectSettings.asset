@@ -81,7 +81,7 @@ PlayerSettings:
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
-  deferSystemGesturesMode: 0
+  deferSystemGesturesMode: 4
   hideHomeButton: 0
   submitAnalytics: 1
   usePlayerLog: 1
@@ -136,8 +136,6 @@ PlayerSettings:
     Others: 1
   bundleVersion: 0.1.0
   preloadedAssets:
-  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
-  - {fileID: -951447941494676183, guid: 6addd197df5c99a48afe788725ac5ba2, type: 2}
   - {fileID: 11400000, guid: 999e1f6a9a1b8a948b02eadc5b35acbe, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -160,14 +158,14 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.harusaki32.tofar_test
     Standalone: com.UnityTechnologies.com.unity.template.urp-blank
-    iPhone: com.Unity-Technologies.com.unity.template.urp-blank
+    iPhone: com.harusaki-32.ToF-ARtest
   buildNumber:
     Standalone: 0
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 31
+  AndroidMinSdkVersion: 32
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
